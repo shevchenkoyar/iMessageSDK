@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>iMessageSDK</RootNamespace>
+        <PackageId>iMessageSDK</PackageId>
+        <Description>A production-grade .NET SDK for interacting with the macOS Messages app.</Description>
+        <SupportedOSPlatformVersion>10.15</SupportedOSPlatformVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\iMessageSDK.Abstractions\iMessageSDK.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,24 @@
+<Project>
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <Deterministic>true</Deterministic>
+        <Authors>iMessageSDK contributors</Authors>
+        <Description>A production-grade .NET SDK for interacting with the macOS Messages app.</Description>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <!--
+        Public-facing library projects (everything except tests) must document every public
+        member: CS1591 (missing XML comment) is promoted to an error so undocumented public API
+        fails the build instead of merely warning.
+    -->
+    <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+    </PropertyGroup>
+
+</Project>

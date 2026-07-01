@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/iMessageSDK.Abstractions/iMessageSDK.Abstractions.csproj" />
+    <Project Path="src/iMessageSDK.Extensions.DependencyInjection/iMessageSDK.Extensions.DependencyInjection.csproj" />
+    <Project Path="src/iMessageSDK/iMessageSDK.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/iMessageSDK.Tests/iMessageSDK.Tests.csproj" />
+  </Folder>
+</Solution>

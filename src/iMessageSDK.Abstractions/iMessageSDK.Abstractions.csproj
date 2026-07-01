@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>iMessageSDK</RootNamespace>
+        <PackageId>iMessageSDK.Abstractions</PackageId>
+        <Description>Contracts (interfaces, records, enums) for iMessageSDK. Depend on this package alone to mock or test against the SDK without pulling in the macOS-specific implementation.</Description>
+    </PropertyGroup>
+
+</Project>
