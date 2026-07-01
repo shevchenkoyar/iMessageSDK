@@ -14,11 +14,31 @@
     <!--
         Public-facing library projects (everything except tests) must document every public
         member: CS1591 (missing XML comment) is promoted to an error so undocumented public API
-        fails the build instead of merely warning.
+        fails the build instead of merely warning. These are also the projects published to
+        NuGet, so package metadata lives in the same condition.
     -->
     <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+
+        <IsPackable>true</IsPackable>
+        <!-- Overridden by CI via -p:Version=X.Y.Z, derived from the pushed git tag. -->
+        <Version Condition="'$(Version)' == ''">0.0.1-dev</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/shevchenkoyar/iMessageSDK</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/shevchenkoyar/iMessageSDK</RepositoryUrl>
+        <PackageTags>imessage;messages;macos;sdk;chat;applescript</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     </PropertyGroup>
+
+    <ItemGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
+        <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
+    </ItemGroup>
 
 </Project>

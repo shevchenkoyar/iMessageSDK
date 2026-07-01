@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Determine version from tag
+        id: version
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Publishing version $version"
+
+      - name: Restore
+        run: dotnet restore iMessageSDK.slnx
+
+      - name: Build
+        run: dotnet build iMessageSDK.slnx --configuration Release --no-restore -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Test
+        run: dotnet test tests/iMessageSDK.Tests/iMessageSDK.Tests.csproj --configuration Release --no-build
+
+      - name: Pack
+        run: |
+          dotnet pack src/iMessageSDK.Abstractions/iMessageSDK.Abstractions.csproj -c Release --no-build -p:Version=${{ steps.version.outputs.version }} -o ./artifacts
+          dotnet pack src/iMessageSDK/iMessageSDK.csproj -c Release --no-build -p:Version=${{ steps.version.outputs.version }} -o ./artifacts
+          dotnet pack src/iMessageSDK.Extensions.DependencyInjection/iMessageSDK.Extensions.DependencyInjection.csproj -c Release --no-build -p:Version=${{ steps.version.outputs.version }} -o ./artifacts
+
+      - name: Push to NuGet.org
+        run: >
+          dotnet nuget push "./artifacts/*.nupkg"
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts/*
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifacts/*.nupkg
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}

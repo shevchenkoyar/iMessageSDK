@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    # The SDK only runs on macOS (it automates the local Messages app and reads its conversation
+    # history), so build/test happens on a macOS runner rather than a cross-platform matrix.
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore iMessageSDK.slnx
+
+      - name: Build
+        run: dotnet build iMessageSDK.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test tests/iMessageSDK.Tests/iMessageSDK.Tests.csproj
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory ./test-results
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./test-results/*.trx
+
+      - name: Pack (validation only, not published)
+        run: |
+          dotnet pack src/iMessageSDK.Abstractions/iMessageSDK.Abstractions.csproj -c Release --no-build -p:Version=0.0.1-ci -o ./artifacts
+          dotnet pack src/iMessageSDK/iMessageSDK.csproj -c Release --no-build -p:Version=0.0.1-ci -o ./artifacts
+          dotnet pack src/iMessageSDK.Extensions.DependencyInjection/iMessageSDK.Extensions.DependencyInjection.csproj -c Release --no-build -p:Version=0.0.1-ci -o ./artifacts
